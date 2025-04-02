@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS `kyc_submissions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `full_name` varchar(255) NOT NULL,
+  `date_of_birth` date NOT NULL,
+  `address` text NOT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `document_type` enum('passport','drivers_license','national_id') NOT NULL,
+  `document_number` varchar(50) NOT NULL,
+  `document_front` varchar(255) NOT NULL,
+  `document_back` varchar(255) NOT NULL,
+  `selfie` varchar(255) NOT NULL,
+  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  `rejection_reason` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `kyc_submissions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; 
