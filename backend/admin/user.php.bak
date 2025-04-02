@@ -1,0 +1,1035 @@
+// Search functionality
+$search = $_GET['search'] ?? '';
+$searchCondition = '';
+if (!empty($search)) {
+    $safeSearch = mysqli_real_escape_string($conn, $search);
+    $searchCondition = " WHERE 
+        u.first_name LIKE '%$safeSearch%' OR 
+        u.last_name LIKE '%$safeSearch%' OR 
+        u.email LIKE '%$safeSearch%' OR 
+        u.username LIKE '%$safeSearch%'";
+}
+// Enable debugging for development
+define('DEBUG_MODE', true);
+
+require_once 'admin_auth.php';
+require_once '../config/database.php';
+
+// Process user update
+$success = $error = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_user') {
+    $userId = $_POST['user_id'] ?? 0;
+    $column = $_POST['column'] ?? '';
+    $value = $_POST['value'] ?? 0;
+    
+    if (empty($userId) || empty($column)) {
+        echo json_encode(['status' => 'error', 'message' => 'Missing required parameters']);
+        exit;
+    }
+    
+    // Validate column name to prevent SQL injection
+    $allowedColumns = ['balance', 'active_deposit', 'profit', 'bonus'];
+    if (!in_array($column, $allowedColumns)) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid column name']);
+        exit;
+    }
+    
+    // Start transaction
+    $conn->begin_transaction();
+    
+    try {
+        // First check if record exists
+        $checkStmt = $conn->prepare("SELECT id FROM user_balance WHERE user_id = ?");
+        $checkStmt->bind_param("i", $userId);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
+        
+        if ($checkResult->num_rows > 0) {
+            // Update existing record
+            $stmt = $conn->prepare("UPDATE user_balance SET $column = ? WHERE user_id = ?");
+            $stmt->bind_param("di", $value, $userId);
+        } else {
+            // Insert new record with defaults
+            $insertData = [
+                'balance' => 0,
+                'active_deposit' => 0,
+                'profit' => 0,
+                'bonus' => 0
+            ];
+            $insertData[$column] = $value;
+            
+            $stmt = $conn->prepare("INSERT INTO user_balance (user_id, balance, active_deposit, profit, bonus) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("idddd", $userId, $insertData['balance'], $insertData['active_deposit'], $insertData['profit'], $insertData['bonus']);
+        }
+        
+        if ($stmt->execute()) {
+            $conn->commit();
+            echo json_encode(['status' => 'success', 'message' => 'Data updated successfully', 'value' => number_format($value, 2)]);
+        } else {
+            throw new Exception("Error executing query");
+        }
+        
+        exit;
+    } catch (Exception $e) {
+        $conn->rollback();
+        echo json_encode(['status' => 'error', 'message' => 'Error updating data: ' . $e->getMessage()]);
+        exit;
+    }
+}
+
+// Check if user_balance table exists, create if not
+try {
+    // First verify database connection is working
+    if ($conn->connect_error) {
+        throw new Exception("Database connection failed: " . $conn->connect_error);
+    }
+    
+    $checkTable = $conn->query("SHOW TABLES LIKE 'user_balance'");
+    if (!$checkTable) {
+        throw new Exception("Error checking for user_balance table: " . $conn->error);
+    }
+    
+    if ($checkTable->num_rows === 0) {
+        $createTable = "CREATE TABLE user_balance (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            balance DECIMAL(15,2) DEFAULT 0,
+            active_deposit DECIMAL(15,2) DEFAULT 0,
+            profit DECIMAL(15,2) DEFAULT 0,
+            bonus DECIMAL(15,2) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_user (user_id)
+        )";
+        
+        if (!$conn->query($createTable)) {
+            throw new Exception("Error creating user_balance table: " . $conn->error);
+        } else {
+            error_log("Created user_balance table successfully");
+        }
+    }
+    
+    // Check if investments table exists, create if not
+    $checkInvestmentsTable = $conn->query("SHOW TABLES LIKE 'investments'");
+    if (!$checkInvestmentsTable) {
+        throw new Exception("Error checking for investments table: " . $conn->error);
+    }
+    
+    if ($checkInvestmentsTable->num_rows === 0) {
+        $createInvestmentsTable = "CREATE TABLE investments (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            amount DECIMAL(15,2) DEFAULT 0,
+            plan VARCHAR(100) NOT NULL,
+            status ENUM('pending', 'active', 'completed', 'cancelled') DEFAULT 'pending',
+            profit_rate DECIMAL(5,2) DEFAULT 0,
+            duration INT DEFAULT 0,
+            returns DECIMAL(15,2) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            completed_at TIMESTAMP NULL,
+            KEY idx_user_id (user_id)
+        )";
+        
+        if (!$conn->query($createInvestmentsTable)) {
+            throw new Exception("Error creating investments table: " . $conn->error);
+        } else {
+            error_log("Created investments table successfully");
+        }
+    }
+} catch (Exception $e) {
+    // Log error - this is critical and should be addressed
+    error_log("Database table creation error: " . $e->getMessage());
+    $error = "Database setup error: " . (DEBUG_MODE ? $e->getMessage() : "Please contact the administrator.");
+}
+
+// Pagination
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$perPage = isset($_GET['entries']) ? (int)$_GET['entries'] : 10;
+$offset = ($page - 1) * $perPage;
+
+// Search functionality
+$search = $_GET['search'] ?? '';
+$searchCondition = '';
+if (!empty($search)) {
+    $searchCondition = " WHERE 
+        u.first_name LIKE '%".mysqli_real_escape_string($conn, $search)."%' OR 
+        u.last_name LIKE '%".mysqli_real_escape_string($conn, $search)."%' OR 
+        u.email LIKE '%".mysqli_real_escape_string($conn, $search)."%' OR 
+        u.username LIKE '%".mysqli_real_escape_string($conn, $search)."%'";
+}
+
+// Get users with balance data and investment information
+try {
+    // First check if the investments table exists
+    $checkInvestmentTable = $conn->query("SHOW TABLES LIKE 'investments'");
+    $investmentsTableExists = ($checkInvestmentTable && $checkInvestmentTable->num_rows > 0);
+    
+    $totalQuery = "SELECT COUNT(*) as total FROM users u" . $searchCondition;
+    $totalResult = $conn->query($totalQuery);
+    
+    if ($totalResult) {
+        $totalUsers = $totalResult->fetch_assoc()['total'];
+    } else {
+        throw new Exception("Error executing total users query: " . $conn->error);
+    }
+    
+    $totalPages = ceil($totalUsers / $perPage);
+
+    // Modified query to get all user data including investment information if table exists
+    if ($investmentsTableExists) {
+        // Check if there are any investments in the table
+        $checkInvestmentsData = $conn->query("SELECT COUNT(*) as count FROM investments");
+        $hasInvestmentsData = ($checkInvestmentsData && $checkInvestmentsData->fetch_assoc()['count'] > 0);
+        
+        if ($hasInvestmentsData) {
+            $query = "SELECT 
+                u.id, 
+                u.username, 
+                u.first_name, 
+                u.last_name, 
+                u.email, 
+                u.phone,
+                u.country,
+                u.state,
+                u.referral_id,
+                u.created_at,
+                COALESCE(ub.balance, 0) as balance,
+                COALESCE(ub.active_deposit, 0) as active_deposit,
+                COALESCE(ub.profit, 0) as profit,
+                COALESCE(ub.bonus, 0) as bonus,
+                inv.amount as investment_amount,
+                inv.plan as investment_plan,
+                inv.status as investment_status,
+                inv.created_at as investment_date
+            FROM 
+                users u
+            LEFT JOIN 
+                user_balance ub ON u.id = ub.user_id
+            LEFT JOIN 
+                (
+                    SELECT i1.*
+                    FROM investments i1
+                    INNER JOIN (
+                        SELECT user_id, MAX(id) as max_id 
+                        FROM investments 
+                        GROUP BY user_id
+                    ) i2 ON i1.id = i2.max_id
+                ) inv ON u.id = inv.user_id
+            $searchCondition
+            ORDER BY 
+                u.id ASC
+            LIMIT 
+                $offset, $perPage";
+        } else {
+            // No investments data, so use a simpler query
+            $query = "SELECT 
+                u.id, 
+                u.username, 
+                u.first_name, 
+                u.last_name, 
+                u.email, 
+                u.phone,
+                u.country,
+                u.state,
+                u.referral_id,
+                u.created_at,
+                COALESCE(ub.balance, 0) as balance,
+                COALESCE(ub.active_deposit, 0) as active_deposit,
+                COALESCE(ub.profit, 0) as profit,
+                COALESCE(ub.bonus, 0) as bonus
+            FROM 
+                users u
+            LEFT JOIN 
+                user_balance ub ON u.id = ub.user_id
+            $searchCondition
+            ORDER BY 
+                u.id ASC
+            LIMIT 
+                $offset, $perPage";
+        }
+    } else {
+        // If investments table doesn't exist, query without it
+        $query = "SELECT 
+            u.id, 
+            u.username, 
+            u.first_name, 
+            u.last_name, 
+            u.email, 
+            u.phone,
+            u.country,
+            u.state,
+            u.referral_id,
+            u.created_at,
+            COALESCE(ub.balance, 0) as balance,
+            COALESCE(ub.active_deposit, 0) as active_deposit,
+            COALESCE(ub.profit, 0) as profit,
+            COALESCE(ub.bonus, 0) as bonus
+        FROM 
+            users u
+        LEFT JOIN 
+            user_balance ub ON u.id = ub.user_id
+        $searchCondition
+        ORDER BY 
+            u.id ASC
+        LIMIT 
+            $offset, $perPage";
+    }
+
+    error_log("Executing query: " . str_replace("\n", " ", $query)); // Log the query for debugging
+    $result = $conn->query($query);
+    
+    if (!$result) {
+        throw new Exception("Error executing user query: " . $conn->error);
+    }
+} catch (Exception $e) {
+    // Log error - this is critical and should be addressed
+    error_log("Database query error: " . $e->getMessage());
+    $error = "An error occurred while retrieving user data. Please try again later.";
+    $result = null;
+    $totalUsers = 0;
+    $totalPages = 0;
+}
+
+// Get investment data
+$investments = [];
+
+try {
+    // Only try to get investment data if the investments table exists
+    $checkInvestmentTable = $conn->query("SHOW TABLES LIKE 'investments'");
+    
+    if ($checkInvestmentTable && $checkInvestmentTable->num_rows > 0) {
+        // Check if there are any investment records
+        $checkInvestmentsData = $conn->query("SELECT COUNT(*) as count FROM investments");
+        if ($checkInvestmentsData && $checkInvestmentsData->fetch_assoc()['count'] > 0) {
+            // Only run this query if there are investment records to avoid SQL errors
+            $investmentQuery = "SELECT user_id, MAX(created_at) as last_investment, status 
+                            FROM investments 
+                            GROUP BY user_id, status";
+            $investmentResult = $conn->query($investmentQuery);
+            
+            if ($investmentResult) {
+                if ($investmentResult->num_rows > 0) {
+                    while ($row = $investmentResult->fetch_assoc()) {
+                        $investments[$row['user_id']] = $row;
+                    }
+                }
+            } else {
+                // Log the error but don't halt execution
+                error_log("Error in investment query: " . $conn->error);
+            }
+        }
+    }
+} catch (Exception $e) {
+    // Log error but continue - this is not critical functionality
+    error_log("Error fetching investment data: " . $e->getMessage());
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - AxisBot Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --primary-color: #3a7bd5;
+            --secondary-color: #00d2ff;
+            --dark-color: #343a40;
+        }
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--dark-color);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .sidebar .logo {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        .sidebar .logo h3 {
+            color: white;
+            margin: 0;
+            font-size: 20px;
+        }
+        .sidebar .logo span {
+            color: var(--secondary-color);
+        }
+        .sidebar .menu-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar .menu-items li {
+            margin-bottom: 5px;
+        }
+        .sidebar .menu-items a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            transition: all 0.3s;
+        }
+        .sidebar .menu-items a:hover,
+        .sidebar .menu-items a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left: 3px solid var(--secondary-color);
+        }
+        .sidebar .menu-items a i {
+            margin-right: 10px;
+            font-size: 18px;
+            width: 25px;
+            text-align: center;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header .user-info {
+            display: flex;
+            align-items: center;
+        }
+        .header .user-info .dropdown-toggle {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+        }
+        .header .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .content-container {
+            background: white;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .table thead th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        .currency {
+            font-family: monospace;
+        }
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            margin-right: 5px;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .btn-primary {
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            border: none;
+        }
+        .editable {
+            position: relative;
+            cursor: pointer;
+        }
+        .editable:hover {
+            background-color: #f8f9fa;
+        }
+        .editable.editing {
+            padding: 0;
+        }
+        .edit-input {
+            width: 100%;
+            height: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .save-feedback {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 2px 5px;
+            font-size: 12px;
+            border-radius: 3px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+            .sidebar.active {
+                margin-left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .main-content.active {
+                margin-left: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h3>AXIS<span>BOT</span> Admin</h3>
+            </div>
+            <ul class="menu-items">
+                <li>
+                    <a href="dashboard.php">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="company_settings.php">
+                        <i class="fas fa-building"></i> Company Settings
+                    </a>
+                </li>
+                <li>
+                    <a href="user.php" class="active">
+                        <i class="fas fa-users"></i> Manage Users
+                    </a>
+                </li>
+                <li>
+                    <a href="deposits.php">
+                        <i class="fas fa-money-bill-wave"></i> Deposits
+                    </a>
+                </li>
+                <li>
+                    <a href="withdrawals.php">
+                        <i class="fas fa-hand-holding-usd"></i> Withdrawals
+                    </a>
+                </li>
+                <li>
+                    <a href="wallet_settings.php">
+                        <i class="fas fa-wallet"></i> Wallet Settings
+                    </a>
+                </li>
+                <li>
+                    <a href="email_users.php">
+                        <i class="fas fa-envelope"></i> Email Users
+                    </a>
+                </li>
+                <li>
+                    <a href="logout.php">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>User Account Management</h1>
+                <div class="user-info">
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                            <img src="../assets/images/admin-avatar.png" alt="Admin Avatar">
+                            <span><?php echo htmlspecialchars($adminUsername); ?></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="change_password.php"><i class="fas fa-key me-2"></i> Change Password</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="mb-0">All Users</h3>
+                    <div class="alert-container"></div>
+                </div>
+                
+                <?php if (isset($error) && !empty($error)): ?>
+                <div class="alert alert-danger mb-3">
+                    <?php echo $error; ?>
+                    <?php if (defined('DEBUG_MODE') && DEBUG_MODE): ?>
+                    <div class="mt-2 small">
+                        <strong>Debug Info:</strong> Check the server error logs for more details.
+                    </div>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+                
+                <?php if ($result === null): ?>
+                <div class="card mb-4">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
+                        <h4>Database Error</h4>
+                        <p>There was a problem retrieving user data. Please try refreshing the page or contact the administrator.</p>
+                        <a href="user.php" class="btn btn-primary mt-3">
+                            <i class="fas fa-sync-alt"></i> Refresh Page
+                        </a>
+                    </div>
+                </div>
+                <?php else: ?>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">Show</span>
+                            <select class="form-select form-select-sm" style="width: 80px;" id="entriesSelect">
+                                <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10</option>
+                                <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25</option>
+                                <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50</option>
+                                <option value="100" <?php echo $perPage == 100 ? 'selected' : ''; ?>>100</option>
+                            </select>
+                            <span class="ms-2">entries</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <form method="GET" action="">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search..." name="search" value="<?php echo htmlspecialchars($search); ?>">
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Country</th>
+                                <th>Balance</th>
+                                <th>Active Deposit</th>
+                                <th>Profit</th>
+                                <th>Bonus</th>
+                                <th>Package</th>
+                                <th>Investment Date</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            if ($result && $result->num_rows > 0) {
+                                $count = $offset + 1;
+                                while ($user = $result->fetch_assoc()) {
+                                    // Define default values if investment data doesn't exist
+                                    $investmentStatus = isset($user['investment_status']) ? $user['investment_status'] : 'not yet funded';
+                                    $investmentDate = isset($user['investment_date']) && !empty($user['investment_date']) ? 
+                                        date('Y-m-d H:i:s', strtotime($user['investment_date'])) : 
+                                        'No investment';
+                                    $investmentPlan = isset($user['investment_plan']) && !empty($user['investment_plan']) ? 
+                                        htmlspecialchars($user['investment_plan']) : 
+                                        'None';
+                            ?>
+                                <tr>
+                                    <td><?php echo $count++; ?></td>
+                                    <td><?php echo htmlspecialchars($user['id']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['country'] ?? 'Not set'); ?></td>
+                                    <td class="currency editable" data-column="balance" data-id="<?php echo $user['id']; ?>">
+                                        $<span class="display-value"><?php echo number_format($user['balance'], 2); ?></span>
+                                        <input type="number" class="edit-input form-control" value="<?php echo $user['balance']; ?>" style="display: none;" min="0" step="0.01">
+                                    </td>
+                                    <td class="currency editable" data-column="active_deposit" data-id="<?php echo $user['id']; ?>">
+                                        $<span class="display-value"><?php echo number_format($user['active_deposit'], 2); ?></span>
+                                        <input type="number" class="edit-input form-control" value="<?php echo $user['active_deposit']; ?>" style="display: none;" min="0" step="0.01">
+                                    </td>
+                                    <td class="currency editable" data-column="profit" data-id="<?php echo $user['id']; ?>">
+                                        $<span class="display-value"><?php echo number_format($user['profit'], 2); ?></span>
+                                        <input type="number" class="edit-input form-control" value="<?php echo $user['profit']; ?>" style="display: none;" min="0" step="0.01">
+                                    </td>
+                                    <td class="currency editable" data-column="bonus" data-id="<?php echo $user['id']; ?>">
+                                        $<span class="display-value"><?php echo number_format($user['bonus'], 2); ?></span>
+                                        <input type="number" class="edit-input form-control" value="<?php echo $user['bonus']; ?>" style="display: none;" min="0" step="0.01">
+                                    </td>
+                                    <td><?php echo $investmentPlan; ?></td>
+                                    <td><?php echo $investmentDate; ?></td>
+                                    <td>
+                                        <?php if (isset($user['investment_status'])): ?>
+                                        <span class="badge <?php echo strtolower($investmentStatus) == 'active' ? 'bg-success' : (strtolower($investmentStatus) == 'pending' ? 'bg-warning' : 'bg-secondary'); ?>">
+                                            <?php echo $investmentStatus; ?>
+                                        </span>
+                                        <?php else: ?>
+                                        <span class="badge bg-secondary">Not available</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo date('Y-m-d', strtotime($user['created_at'])); ?></td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-primary add-investment" data-user-id="<?php echo $user['id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>">
+                                            <i class="fas fa-plus"></i> Add Investment
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php 
+                                }
+                            } else {
+                            ?>
+                                <tr>
+                                    <td colspan="15" class="text-center">
+                                        <?php if ($result === null): ?>
+                                            <div class="alert alert-danger m-3">
+                                                <i class="fas fa-exclamation-circle me-2"></i>
+                                                Error retrieving user data. Please check database connection.
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="alert alert-info m-3">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                No users found matching your criteria. Try adjusting your search.
+                                            </div>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php 
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <?php if (isset($result) && $result !== null): ?>
+                <div class="pagination-container">
+                    <div>
+                        Showing <?php echo $offset + 1; ?> to <?php echo min($offset + $perPage, $totalUsers); ?> of <?php echo $totalUsers; ?> entries
+                    </div>
+                    <nav>
+                        <ul class="pagination">
+                            <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $page - 1; ?>&entries=<?php echo $perPage; ?>&search=<?php echo urlencode($search); ?>">Previous</a>
+                            </li>
+                            
+                            <?php for ($i = max(1, $page - 2); $i <= min($page + 2, $totalPages); $i++): ?>
+                                <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                                    <a class="page-link" href="?page=<?php echo $i; ?>&entries=<?php echo $perPage; ?>&search=<?php echo urlencode($search); ?>"><?php echo $i; ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            
+                            <li class="page-item <?php echo $page >= $totalPages ? 'disabled' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $page + 1; ?>&entries=<?php echo $perPage; ?>&search=<?php echo urlencode($search); ?>">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <?php endif; ?>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Investment Modal -->
+    <div class="modal fade" id="addInvestmentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Investment for <span id="modal-username"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addInvestmentForm">
+                    <div class="modal-body">
+                        <input type="hidden" name="user_id" id="investment-user-id">
+                        
+                        <div class="form-group mb-3">
+                            <label class="form-label">Investment Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" name="amount" min="1" step="0.01" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label class="form-label">Investment Plan</label>
+                            <select class="form-select" name="plan" required>
+                                <option value="">Select Plan</option>
+                                <option value="Starter Pack">Starter Pack</option>
+                                <option value="Silver Plan">Silver Plan</option>
+                                <option value="Gold Plan">Gold Plan</option>
+                                <option value="Premium Plan">Premium Plan</option>
+                                <option value="VIP Plan">VIP Plan</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label class="form-label">Profit Rate (%)</label>
+                            <input type="number" class="form-control" name="profit_rate" min="0.1" step="0.1" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label class="form-label">Duration (days)</label>
+                            <input type="number" class="form-control" name="duration" min="1" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status" required>
+                                <option value="pending">Pending</option>
+                                <option value="active" selected>Active</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div id="investment-form-feedback" class="d-none alert w-100"></div>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Investment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Show global success/error notification
+            function showNotification(message, type) {
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                const alert = $(`<div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`);
+                
+                $('.alert-container').append(alert);
+                
+                // Auto-dismiss after 3 seconds
+                setTimeout(function() {
+                    alert.alert('close');
+                }, 3000);
+            }
+            
+            // Make cell editable on click
+            $('.editable').click(function() {
+                const cell = $(this);
+                
+                // Only make editable if not already editing
+                if (!cell.hasClass('editing')) {
+                    // Add editing class to cell
+                    cell.addClass('editing');
+                    
+                    // Hide display value and show input
+                    cell.find('.display-value').hide();
+                    cell.find('.edit-input').show().focus();
+                }
+            });
+            
+            // Save on blur
+            $('.edit-input').blur(function() {
+                const input = $(this);
+                const cell = input.closest('.editable');
+                const value = input.val();
+                const column = cell.data('column');
+                const userId = cell.data('id');
+                
+                saveData(cell, userId, column, value);
+            });
+            
+            // Save on enter key
+            $('.edit-input').keypress(function(e) {
+                if (e.which === 13) {
+                    const input = $(this);
+                    const cell = input.closest('.editable');
+                    const value = input.val();
+                    const column = cell.data('column');
+                    const userId = cell.data('id');
+                    
+                    saveData(cell, userId, column, value);
+                }
+            });
+            
+            // Function to save data to server
+            function saveData(cell, userId, column, value) {
+                // Show loading indicator
+                const displayValue = cell.find('.display-value');
+                const input = cell.find('.edit-input');
+                
+                $.ajax({
+                    url: window.location.href,
+                    method: 'POST',
+                    data: {
+                        action: 'update_user',
+                        user_id: userId,
+                        column: column,
+                        value: value
+                    },
+                    success: function(response) {
+                        try {
+                            const data = JSON.parse(response);
+                            if (data.status === 'success') {
+                                // Show success indicator
+                                displayValue.text(data.value);
+                                
+                                // Show temporary success message
+                                const feedback = $('<span class="save-feedback bg-success text-white">Saved</span>');
+                                cell.append(feedback);
+                                setTimeout(function() {
+                                    feedback.fadeOut(function() {
+                                        $(this).remove();
+                                    });
+                                }, 1000);
+                            } else {
+                                // Show error indicator
+                                const feedback = $('<span class="save-feedback bg-danger text-white">Error</span>');
+                                cell.append(feedback);
+                                setTimeout(function() {
+                                    feedback.fadeOut(function() {
+                                        $(this).remove();
+                                    });
+                                }, 1000);
+                                showNotification(data.message, 'error');
+                            }
+                        } catch (e) {
+                            console.error('Invalid JSON response', e);
+                            showNotification('Server returned an invalid response', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('AJAX error', xhr);
+                        // Show error indicator
+                        const feedback = $('<span class="save-feedback bg-danger text-white">Error</span>');
+                        cell.append(feedback);
+                        setTimeout(function() {
+                            feedback.fadeOut(function() {
+                                $(this).remove();
+                            });
+                        }, 1000);
+                        showNotification('Connection error occurred', 'error');
+                    },
+                    complete: function() {
+                        // End edit mode and reset display
+                        cell.removeClass('editing');
+                        displayValue.show();
+                        input.hide();
+                    }
+                });
+            }
+            
+            // Entries select change
+            $('#entriesSelect').change(function() {
+                const entries = $(this).val();
+                window.location.href = '?page=1&entries=' + entries + '&search=<?php echo urlencode($search); ?>';
+            });
+            
+            // Show add investment modal
+            $('.add-investment').click(function() {
+                const userId = $(this).data('user-id');
+                const username = $(this).data('username');
+                
+                $('#investment-user-id').val(userId);
+                $('#modal-username').text(username);
+                
+                new bootstrap.Modal(document.getElementById('addInvestmentModal')).show();
+            });
+            
+            // Handle add investment form submission
+            $('#addInvestmentForm').submit(function(e) {
+                e.preventDefault();
+                const formData = $(this).serialize();
+                
+                $.ajax({
+                    url: 'add_investment.php',
+                    method: 'POST',
+                    data: formData,
+                    beforeSend: function() {
+                        $('#investment-form-feedback').addClass('d-none').removeClass('alert-success alert-danger');
+                    },
+                    success: function(response) {
+                        try {
+                            const data = JSON.parse(response);
+                            if (data.status === 'success') {
+                                $('#investment-form-feedback')
+                                    .removeClass('d-none alert-danger')
+                                    .addClass('alert-success')
+                                    .text(data.message);
+                                    
+                                // Reset form
+                                setTimeout(function() {
+                                    $('#addInvestmentModal').modal('hide');
+                                    window.location.reload();
+                                }, 1500);
+                            } else {
+                                $('#investment-form-feedback')
+                                    .removeClass('d-none alert-success')
+                                    .addClass('alert-danger')
+                                    .text(data.message);
+                            }
+                        } catch (e) {
+                            $('#investment-form-feedback')
+                                .removeClass('d-none alert-success')
+                                .addClass('alert-danger')
+                                .text('Invalid server response');
+                        }
+                    },
+                    error: function() {
+                        $('#investment-form-feedback')
+                            .removeClass('d-none alert-success')
+                            .addClass('alert-danger')
+                            .text('Server error occurred');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
