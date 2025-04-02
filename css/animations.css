@@ -1,0 +1,166 @@
+/* Additional animations for the website */
+
+/* Particle animations for hero section */
+.particle {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float-particle linear infinite;
+}
+
+@keyframes float-particle {
+    0% {
+        transform: translateY(0) translateX(0);
+    }
+    25% {
+        transform: translateY(-20px) translateX(10px);
+    }
+    50% {
+        transform: translateY(0) translateX(20px);
+    }
+    75% {
+        transform: translateY(20px) translateX(10px);
+    }
+    100% {
+        transform: translateY(0) translateX(0);
+    }
+}
+
+/* Pulse animation for interactive elements */
+.pulse {
+    animation: pulse-animation 0.5s ease;
+}
+
+@keyframes pulse-animation {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Scroll progress indicator */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--accent-color);
+    z-index: 9999;
+    width: 0%;
+    transition: width 0.2s ease;
+}
+
+/* Shine effect for cards */
+.benefit-card::after,
+.blog-card::after,
+.stat-box::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+.benefit-card:hover::after,
+.blog-card:hover::after,
+.stat-box:hover::after {
+    opacity: 1;
+    animation: shine 1.5s ease;
+}
+
+@keyframes shine {
+    0% {
+        left: -50%;
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        left: 150%;
+        opacity: 0;
+    }
+}
+
+/* Typing cursor animation */
+.hero h1::after {
+    content: '|';
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+/* Button hover animation */
+.cta-button:hover,
+.btn:hover {
+    animation: jello 1s;
+}
+
+@keyframes jello {
+    0%, 11.1%, 100% {
+        transform: translateY(-5px) scale(1, 1);
+    }
+    22.2% {
+        transform: translateY(-5px) scale(1.1, 0.9);
+    }
+    33.3% {
+        transform: translateY(-5px) scale(0.9, 1.1);
+    }
+    44.4% {
+        transform: translateY(-5px) scale(1.05, 0.95);
+    }
+    55.5% {
+        transform: translateY(-5px) scale(0.95, 1.05);
+    }
+    66.6% {
+        transform: translateY(-5px) scale(1.02, 0.98);
+    }
+    77.7% {
+        transform: translateY(-5px) scale(0.98, 1.02);
+    }
+    88.8% {
+        transform: translateY(-5px) scale(1.01, 0.99);
+    }
+}
+
+/* Animated background for sections */
+.cta {
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}

@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - AxisBot</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Services Page Specific Styles */
+        .services-hero {
+            min-height: 90vh;
+            background: linear-gradient(135deg, #0a1f44 0%, #1a365d 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 180px 0 100px;
+            color: white;
+        }
+
+        .services-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(41, 98, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 180, 255, 0.15) 0%, transparent 50%);
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .services-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .services-label {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 25px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .services-hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            font-weight: 800;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .services-hero p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        .service-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 35px 25px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+            z-index: 1;
+        }
+
+        .stat-item:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-item:hover::before {
+            transform: translateY(0);
+        }
+
+        .stat-item h3 {
+            position: relative;
+            z-index: 2;
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .stat-item p {
+            position: relative;
+            z-index: 2;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+        }
+
+        .services-section {
+            padding: 120px 0;
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+            position: relative;
+        }
+
+        .services-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(180deg, transparent 0%, #f8f9fa 100%);
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 25px;
+            overflow: visible;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 35px 40px;
+            margin-top: 50px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+            border-color: rgba(0, 0, 0, 0.08);
+        }
+        
+        .service-icon {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%) rotate(0deg);
+            z-index: 2;
+            box-shadow: 0 15px 35px rgba(0, 86, 179, 0.3);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .service-icon::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+            z-index: 1;
+        }
+
+        .service-icon i {
+            font-size: 2.4rem;
+            color: white;
+            position: relative;
+            z-index: 2;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .service-card:hover .service-icon {
+            transform: translateX(-50%) rotate(-15deg);
+        }
+
+        .service-card:hover .service-icon i {
+            transform: rotate(15deg) scale(1.1);
+        }
+        
+        .service-content {
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+        
+        .service-content h3 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .service-content h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color) 0%, #0056b3 100%);
+            border-radius: 2px;
+        }
+
+        .service-content p {
+            color: #555;
+            line-height: 1.7;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .service-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .service-features {
+            background: #f8f9fa;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .feature-item {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .feature-item:hover::before {
+            opacity: 1;
+        }
+
+        .feature-item:hover * {
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item p {
+            color: #666;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #0a1f44 0%, #1a365d 100%);
+            padding: 100px 0;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-section h2 {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .cta-btn {
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .cta-btn-primary {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .cta-btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .cta-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .cta-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        @media (max-width: 768px) {
+            .menu {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background: white;
+            padding: 20px;
+                transition: left 0.3s ease;
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+            }
+
+            .menu.active {
+                left: 0;
+            }
+
+            .menu li {
+                margin: 15px 0;
+            }
+
+            .menu a {
+                font-size: 1.2rem;
+                padding: 10px 20px;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+                cursor: pointer;
+                z-index: 1001;
+            }
+
+            .mobile-menu-btn.active i {
+                transform: rotate(90deg);
+            }
+
+            .mobile-menu-btn i {
+                transition: transform 0.3s ease;
+            }
+
+            .services-hero {
+                padding: 120px 0 60px;
+            }
+
+            .services-hero h1 {
+                font-size: 2.8rem;
+            }
+
+            .service-stats {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stat-item {
+                transform: none !important;
+                animation: none !important;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: 60px 20px;
+            }
+
+            .service-card {
+                padding: 50px 25px 35px;
+                margin-top: 45px;
+            }
+
+            .service-icon {
+                width: 80px;
+                height: 80px;
+                top: -40px;
+            }
+
+            .service-icon i {
+                font-size: 2rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* Enhanced Animation Classes */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .fade-up.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-1 { transition-delay: 0.2s; }
+        .delay-2 { transition-delay: 0.4s; }
+        .delay-3 { transition-delay: 0.6s; }
+
+        /* Add floating animation to stats */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .stat-item:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .stat-item:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        /* Mobile Menu Styles */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            padding: 80px 20px 40px;
+            transition: right 0.3s ease;
+            z-index: 1000;
+            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mobile-menu ul li {
+            margin-bottom: 20px;
+        }
+
+        .mobile-menu ul li a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.2rem;
+            display: block;
+            padding: 10px 0;
+            transition: color 0.3s ease;
+        }
+
+        .mobile-menu ul li a:hover {
+            color: #0056b3;
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .mobile-menu-close:hover {
+            color: #0056b3;
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Footer Styles */
+        footer {
+            background: linear-gradient(135deg, #0a1f44 0%, #1a365d 100%);
+            color: white;
+            padding: 80px 0 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(41, 98, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 180, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .footer-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 2fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .footer-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .footer-info p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.7;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .footer-links h4 {
+            font-size: 1.2rem;
+            color: white;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            position: relative;
+        }
+
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: white;
+            transition: width 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+
+        .footer-contact {
+            text-align: right;
+        }
+
+        .footer-contact p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .social-icons a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .social-icons a:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-bottom p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .footer-bottom-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-bottom-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-bottom-links a:hover {
+            color: white;
+        }
+
+        @media (max-width: 992px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 40px 30px;
+            }
+
+            .footer-contact {
+                text-align: left;
+            }
+
+            .social-icons {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                padding: 60px 0 30px;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .footer-bottom-links {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Add Mobile Menu HTML -->
+    <div class="mobile-menu-overlay"></div>
+    <div class="mobile-menu">
+        <div class="mobile-menu-close">
+            <i class="fas fa-times"></i>
+        </div>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="packages.html">Packages</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="login.php">Login</a></li>
+        </ul>
+    </div>
+
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">AxisBot</a>
+            </div>
+            <nav>
+                <ul class="menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="services.html" class="active">Services</a></li>
+                    <li><a href="packages.html">Packages</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="login.php">Access account</a></li>
+                    
+                </ul>
+            </nav>
+            <div class="login-btn">
+                <a href="login.php">Login</a>
+            </div>
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Services Hero Section -->
+    <section class="services-hero">
+        <div class="container">
+            <div class="services-hero-content">
+                <div class="services-label fade-up">Our Services</div>
+                <h1 class="fade-up delay-1">Financial Solutions<br>Tailored for You</h1>
+                <p class="fade-up delay-2">Experience comprehensive financial services designed to secure your future and maximize your wealth potential with our expert team.</p>
+                
+                <div class="service-stats">
+                    <div class="stat-item fade-up delay-1">
+                        <h3>98%</h3>
+                        <p>Client Satisfaction</p>
+                    </div>
+                    <div class="stat-item fade-up delay-2">
+                        <h3>$30M+</h3>
+                        <p>Assets Managed</p>
+                    </div>
+                    <div class="stat-item fade-up delay-3">
+                        <h3>11+</h3>
+                        <p>Years Experience</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-section">
+        <div class="container">
+            <div class="services-grid">
+                <div class="service-card fade-up">
+                    <div class="service-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3>Investment Management</h3>
+                        <p>Expert portfolio management tailored to your goals and risk tolerance. We utilize advanced strategies to optimize returns while managing risk effectively.</p>
+                        <p>Our team of seasoned professionals monitors market trends and adjusts your portfolio to capitalize on opportunities while protecting your investments.</p>
+                    </div>
+                </div>
+                
+                <div class="service-card fade-up delay-1">
+                    <div class="service-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3>Wealth Planning</h3>
+                        <p>Comprehensive wealth management strategies designed to preserve and grow your assets across generations.</p>
+                        <p>We create personalized plans that consider your current financial situation, future goals, and legacy planning needs.</p>
+                    </div>
+                </div>
+                
+                <div class="service-card fade-up delay-2">
+                    <div class="service-icon">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3>Fixed Income Securities</h3>
+                        <p>Stabilize your investment portfolio with our fixed income securities that provide regular income and capital preservation.</p>
+                        <p>Access to a wide range of bonds, treasuries, and other fixed-income instruments with varying yields and maturity profiles.</p>
+                    </div>
+                </div>
+                
+                <div class="service-card fade-up">
+                    <div class="service-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3>Foreign Exchange</h3>
+                        <p>Take advantage of currency fluctuations with our sophisticated foreign exchange trading strategies and expert market analysis.</p>
+                        <p>Our forex trading solutions provide you with the tools and insights to navigate the world's largest financial market.</p>
+                    </div>
+                </div>
+                
+                <div class="service-card fade-up delay-1">
+                    <div class="service-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3>Personal Advisory</h3>
+                        <p>Receive tailored financial advice and comprehensive wealth management solutions aligned with your specific goals.</p>
+                        <p>Our dedicated advisors work closely with you to develop and implement customized investment strategies.</p>
+                    </div>
+                </div>
+                
+                <div class="service-card fade-up delay-2">
+                    <div class="service-icon">
+                        <i class="fas fa-shield-alt"></i>
+                </div>
+                    <div class="service-content">
+                        <h3>Risk Management</h3>
+                        <p>Protect your wealth with our comprehensive risk management solutions and insurance strategies.</p>
+                        <p>We help identify and mitigate potential risks to ensure your financial security remains intact.</p>
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="service-features">
+        <div class="container">
+            <h2 class="text-center fade-up">Why Choose Our Services</h2>
+            <p class="text-center fade-up delay-1">Experience the difference of working with a team dedicated to your financial success</p>
+            
+            <div class="feature-grid">
+                <div class="feature-item fade-up">
+                    <i class="fas fa-fingerprint feature-icon"></i>
+                    <h3>Personalized Approach</h3>
+                    <p>Tailored solutions that match your unique financial goals and circumstances</p>
+                </div>
+                
+                <div class="feature-item fade-up delay-1">
+                    <i class="fas fa-chart-bar feature-icon"></i>
+                    <h3>Data-Driven Decisions</h3>
+                    <p>Investment strategies backed by thorough research and market analysis</p>
+                </div>
+                
+                <div class="feature-item fade-up delay-2">
+                    <i class="fas fa-lock feature-icon"></i>
+                    <h3>Security First</h3>
+                    <p>Your investments are protected by state-of-the-art security measures</p>
+                </div>
+                
+                <div class="feature-item fade-up">
+                    <i class="fas fa-headset feature-icon"></i>
+                    <h3>24/7 Support</h3>
+                    <p>Round-the-clock assistance from our dedicated support team</p>
+                </div>
+                
+                <div class="feature-item fade-up delay-1">
+                    <i class="fas fa-sync-alt feature-icon"></i>
+                    <h3>Regular Updates</h3>
+                    <p>Stay informed with real-time portfolio updates and market insights</p>
+                </div>
+                
+                <div class="feature-item fade-up delay-2">
+                    <i class="fas fa-award feature-icon"></i>
+                    <h3>Proven Track Record</h3>
+                    <p>Years of experience delivering exceptional results for our clients</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="fade-up">Ready to Secure Your Financial Future?</h2>
+                <p class="fade-up delay-1">Join thousands of satisfied clients who have transformed their financial lives with our expert guidance and comprehensive services.</p>
+                <div class="cta-buttons fade-up delay-2">
+                    <a href="contact.html" class="cta-btn cta-btn-primary">Get Started</a>
+                    <a href="packages.html" class="cta-btn cta-btn-secondary">View Packages</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-grid">
+                <div class="footer-info">
+                    <h3>AxisBot</h3>
+                    <p>Your trusted partner in financial growth and wealth management. We provide innovative investment solutions tailored to your unique financial goals.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="packages.html">Packages</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="login.php">Access account</a></li>
+                    
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="login.php">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                        <li><a href="#">Market Updates</a></li>
+                        <li><a href="#">Investment Guide</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p>23 King George Avenue<br>Bushey, England<br>WD23 4NT</p>
+                    <p>Phone: (316) 212-3456<br>Email: support@axisforexbot.com</p>
+                    <div class="social-icons">
+                        <a href="https://www.youtube.com/axisbot" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.facebook.com/axisbot" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://twitter.com/axisbot" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="https://wa.me/316212345" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://www.linkedin.com/company/axisbot" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 AxisBot. All Rights Reserved</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Intersection Observer for fade-up animations
+        const observerOptions = {
+            root: null,
+            threshold: 0.1,
+            rootMargin: '0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-up').forEach(element => {
+            observer.observe(element);
+        });
+
+        // Mobile Menu Functionality
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const menu = document.querySelector('.menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            menu.classList.toggle('active');
+            mobileMenuBtn.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!menu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                menu.classList.remove('active');
+                mobileMenuBtn.classList.remove('active');
+            }
+        });
+
+        // Smooth Stat Counter Animation
+        const stats = document.querySelectorAll('.stat-item h3');
+        
+        function animateValue(element, start, end, duration) {
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                
+                // Format the number based on its content
+                let formattedValue = current.toFixed(0);
+                if (element.textContent.includes('$')) {
+                    formattedValue = '$' + parseInt(current).toLocaleString() + 'M+';
+                } else if (element.textContent.includes('+')) {
+                    formattedValue = parseInt(current) + '+';
+                } else {
+                    formattedValue = parseInt(current) + '%';
+                }
+                
+                element.textContent = formattedValue;
+            }, 16);
+        }
+
+        // Initialize stat counters when they come into view
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const element = entry.target;
+                    const value = element.textContent;
+                    let endValue;
+                    
+                    if (value.includes('$')) {
+                        endValue = 30; // $30M+
+                    } else if (value.includes('%')) {
+                        endValue = 98; // 98%
+                    } else {
+                        endValue = 11; // 11+
+                    }
+                    
+                    animateValue(element, 0, endValue, 2000);
+                    statsObserver.unobserve(element);
+                }
+            });
+        }, observerOptions);
+
+        stats.forEach(stat => {
+            statsObserver.observe(stat);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Packages - AxisForexBot</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Packages Page Specific Styles */
+        .packages-hero {
+            min-height: 90vh;
+            background: linear-gradient(135deg, #0a1f44 0%, #1a365d 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 180px 0 100px;
+            color: white;
+        }
+
+        .packages-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(41, 98, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 180, 255, 0.15) 0%, transparent 50%);
+            animation: gradientShift 15s ease infinite;
+        }
+
+        .packages-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .packages-label {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 25px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .packages-hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            font-weight: 800;
+        }
+
+        .packages-hero p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .packages-section {
+            padding: 120px 0;
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+            position: relative;
+        }
+
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .package-card {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .package-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.05) 0%, rgba(var(--primary-rgb), 0) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .package-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+            border-color: rgba(var(--primary-rgb), 0.2);
+        }
+
+        .package-card:hover::before {
+            opacity: 1;
+        }
+
+        .package-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .package-name {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .package-price {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #1a365d;
+            margin-bottom: 20px;
+            line-height: 1;
+        }
+
+        .package-price span {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .package-description {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .package-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px;
+        }
+
+        .package-features li {
+            padding: 12px 0;
+            color: #444;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .package-features li:last-child {
+            border-bottom: none;
+        }
+
+        .package-features i {
+            color: var(--primary-color);
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .package-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border-radius: 25px;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .package-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0056b3 0%, var(--primary-color) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .package-btn:hover {
+            background: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 86, 179, 0.2);
+            color: white;
+        }
+
+        .package-btn:hover::before {
+            opacity: 1;
+        }
+
+        .package-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 10px rgba(0, 86, 179, 0.2);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #00c6fb 0%, #005bea 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0, 98, 255, 0.2);
+        }
+        
+        .comparison-section {
+            padding: 100px 0;
+            background: #f8f9fa;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .comparison-table th, 
+        .comparison-table td {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .comparison-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .check-icon {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 992px) {
+            .packages-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .packages-hero {
+                padding: 120px 0 60px;
+            }
+
+            .packages-hero h1 {
+                font-size: 2.8rem;
+            }
+
+            .packages-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+
+            .package-card {
+                padding: 30px;
+            }
+
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 15px 10px;
+            }
+
+            .package-btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .fade-up.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-1 { transition-delay: 0.2s; }
+        .delay-2 { transition-delay: 0.4s; }
+        .delay-3 { transition-delay: 0.6s; }
+
+        /* Footer Styles */
+        footer {
+            background: linear-gradient(135deg, #0a1f44 0%, #1a365d 100%);
+            color: white;
+            padding: 80px 0 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(41, 98, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 180, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .footer-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 2fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .footer-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .footer-info p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.7;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .footer-links h4 {
+            font-size: 1.2rem;
+            color: white;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            position: relative;
+        }
+
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: white;
+            transition: width 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+
+        .footer-contact {
+            text-align: right;
+        }
+
+        .footer-contact p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .social-icons a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .social-icons a:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-bottom p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .footer-bottom-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-bottom-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-bottom-links a:hover {
+            color: white;
+        }
+
+        @media (max-width: 992px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 40px 30px;
+            }
+
+            .footer-contact {
+                text-align: left;
+            }
+
+            .social-icons {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                padding: 60px 0 30px;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .footer-bottom-links {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">AxisBot</a>
+            </div>
+            <nav>
+                <ul class="menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="packages.html" class="active">Packages</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="login.php">Access account</a></li>
+                    
+                </ul>
+            </nav>
+            <div class="login-btn">
+                <a href="login.php">Login</a>
+            </div>
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Packages Hero Section -->
+    <section class="packages-hero">
+        <div class="container">
+            <div class="packages-hero-content">
+                <div class="packages-label fade-up">Investment Packages</div>
+                <h1 class="fade-up delay-1">Choose Your Path to<br>Financial Success</h1>
+                <p class="fade-up delay-2">Select from our carefully crafted investment packages designed to meet your financial goals. Each package offers a unique combination of services and benefits tailored to different investment needs.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Packages Section -->
+    <section class="packages-section">
+        <div class="container">
+            <div class="packages-grid">
+                <!-- Starter Package -->
+                <div class="package-card fade-up">
+                    <div class="package-header">
+                        <h3 class="package-name">Starter</h3>
+                        <div class="package-price">$1,000<span>/min</span></div>
+                        <p class="package-description">Perfect for beginners looking to start their investment journey</p>
+                    </div>
+                    <ul class="package-features">
+                        <li><i class="fas fa-check"></i> Basic Portfolio Management</li>
+                        <li><i class="fas fa-check"></i> Monthly Market Reports</li>
+                        <li><i class="fas fa-check"></i> Email Support</li>
+                        <li><i class="fas fa-check"></i> Basic Risk Assessment</li>
+                        <li><i class="fas fa-check"></i> Investment Education Resources</li>
+                        </ul>
+                    <a href="login.php" class="package-btn">Get Started</a>
+                </div>
+                
+                <!-- Growth Package -->
+                <div class="package-card fade-up delay-1">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="package-header">
+                        <h3 class="package-name">Growth</h3>
+                        <div class="package-price">$10,000<span>/min</span></div>
+                        <p class="package-description">Ideal for investors seeking balanced growth and stability</p>
+                    </div>
+                    <ul class="package-features">
+                        <li><i class="fas fa-check"></i> Advanced Portfolio Management</li>
+                        <li><i class="fas fa-check"></i> Weekly Market Updates</li>
+                        <li><i class="fas fa-check"></i> Priority Email & Phone Support</li>
+                        <li><i class="fas fa-check"></i> Comprehensive Risk Management</li>
+                        <li><i class="fas fa-check"></i> Tax Planning Services</li>
+                        <li><i class="fas fa-check"></i> Retirement Planning</li>
+                        </ul>
+                    <a href="login.php" class="package-btn">Get Started</a>
+                </div>
+                
+                <!-- Premium Package -->
+                <div class="package-card fade-up delay-2">
+                    <div class="package-header">
+                        <h3 class="package-name">Premium</h3>
+                        <div class="package-price">$50,000<span>/min</span></div>
+                        <p class="package-description">For sophisticated investors seeking comprehensive wealth management</p>
+                    </div>
+                    <ul class="package-features">
+                        <li><i class="fas fa-check"></i> Elite Portfolio Management</li>
+                        <li><i class="fas fa-check"></i> Real-time Market Alerts</li>
+                        <li><i class="fas fa-check"></i> 24/7 Dedicated Support</li>
+                        <li><i class="fas fa-check"></i> Advanced Risk Management</li>
+                        <li><i class="fas fa-check"></i> Estate Planning</li>
+                        <li><i class="fas fa-check"></i> Private Banking Services</li>
+                        <li><i class="fas fa-check"></i> Exclusive Investment Opportunities</li>
+                        </ul>
+                    <a href="login.php" class="package-btn">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="comparison-section">
+        <div class="container">
+            <h2 class="text-center fade-up">Package Comparison</h2>
+            <div class="comparison-table-wrapper fade-up delay-1">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Features</th>
+                            <th>Starter</th>
+                            <th>Growth</th>
+                            <th>Premium</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Minimum Investment</td>
+                            <td>$1,000</td>
+                            <td>$10,000</td>
+                            <td>$50,000</td>
+                        </tr>
+                        <tr>
+                            <td>Portfolio Management</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Market Updates</td>
+                            <td>Monthly</td>
+                            <td>Weekly</td>
+                            <td>Real-time</td>
+                        </tr>
+                        <tr>
+                            <td>Support Level</td>
+                            <td>Email</td>
+                            <td>Email & Phone</td>
+                            <td>24/7 Dedicated</td>
+                        </tr>
+                        <tr>
+                            <td>Risk Management</td>
+                            <td>Basic</td>
+                            <td>Advanced</td>
+                            <td>Premium</td>
+                        </tr>
+                        <tr>
+                            <td>Tax Planning</td>
+                            <td>-</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Estate Planning</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-grid">
+                <div class="footer-info">
+                    <h3>AxisForexBot</h3>
+                    <p>Your trusted partner in financial growth and wealth management. We provide innovative investment solutions tailored to your unique financial goals.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="packages.html">Packages</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="login.php">Access account</a></li>
+                    
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="login.php">Login</a></li>
+                        <li><a href="register.php">Register</a></li>
+                        <li><a href="#">Market Updates</a></li>
+                        <li><a href="#">Investment Guide</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p>23 King George Avenue<br>Bushey, England<br>WD23 4NT</p>
+                    <p>Phone: (316) 212-3456<br>Email: support@axisforexbot.com</p>
+                    <div class="social-icons">
+                        <a href="https://www.youtube.com/axisbot" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.facebook.com/axisbot" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://twitter.com/axisbot" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="https://wa.me/316212345" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://www.linkedin.com/company/axisbot" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2023 AxisforexBot. All Rights Reserved</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Intersection Observer for fade-up animations
+        const observerOptions = {
+            root: null,
+            threshold: 0.1,
+            rootMargin: '0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-up').forEach(element => {
+            observer.observe(element);
+        });
+
+        // Mobile Menu Functionality
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const menu = document.querySelector('.menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            menu.classList.toggle('active');
+            mobileMenuBtn.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!menu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                menu.classList.remove('active');
+                mobileMenuBtn.classList.remove('active');
+            }
+        });
+
+        // Package Button Click Handlers
+        document.querySelectorAll('.package-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const href = button.getAttribute('href');
+                if (href) {
+                    window.location.href = href;
+                }
+            });
+
+            // Add active state for touch devices
+            button.addEventListener('touchstart', function() {
+                this.classList.add('active');
+            });
+
+            button.addEventListener('touchend', function() {
+                this.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

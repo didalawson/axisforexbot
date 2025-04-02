@@ -1,0 +1,495 @@
+AXISBOT WEB APPLICATION STRUCTURE
+================================
+
+1. OVERVIEW
+-----------
+The AxisBot web application is a comprehensive platform with distinct user and admin interfaces, built using PHP, MySQL, and modern web technologies.
+
+2. DIRECTORY STRUCTURE
+---------------------
+/public_html/
+├── backend/
+│   ├── config/
+│   │   └── database.php         # Database configuration
+│   ├── controllers/
+│   │   ├── AuthController.php   # Authentication handling
+│   │   └── ContactController.php # Contact message handling
+│   ├── views/
+│   │   ├── admin/              # Admin interface views
+│   │   │   ├── dashboard.php
+│   │   │   ├── users.php
+│   │   │   └── messages.php
+│   │   └── user/               # User interface views
+│   │       ├── dashboard.php
+│   │       ├── profile.php
+│   │       └── wallet.php
+│   └── assets/
+│       ├── css/
+│       └── js/
+├── css/
+├── js/
+├── images/
+└── uploads/
+    └── avatars/
+
+3. USER INTERFACE STRUCTURE
+--------------------------
+3.1 Authentication
+    - Login system
+    - Registration process
+    - Password recovery
+    - Session management
+
+3.2 User Dashboard
+    - Profile overview
+    - Account balance
+    - Transaction history
+    - Investment status
+    - Referral system
+
+3.3 User Features
+    - Profile management
+    - Wallet management
+    - Investment tracking
+    - Withdrawal requests
+    - Support ticket system
+    - Referral tracking
+
+3.4 User Security
+    - Two-factor authentication
+    - Secure password handling
+    - Session security
+    - Input validation
+    - XSS protection
+
+4. ADMIN INTERFACE STRUCTURE
+---------------------------
+4.1 Admin Authentication
+    - Secure admin login
+    - Role-based access control
+    - Session management
+    - IP-based restrictions
+
+4.2 Admin Dashboard
+    - System overview
+    - User statistics
+    - Financial overview
+    - Recent activities
+    - System alerts
+
+4.3 User Management
+    - User listing
+    - User details view
+    - Role management
+    - Account status control
+    - User search and filtering
+
+4.4 Financial Management
+    - Transaction monitoring
+    - Withdrawal approval
+    - Deposit verification
+    - Balance adjustments
+    - Financial reports
+
+4.5 System Management
+    - System settings
+    - Email templates
+    - Notification settings
+    - Backup management
+    - Log monitoring
+
+5. DATABASE STRUCTURE
+--------------------
+5.1 Core Tables
+    - users
+    - admins
+    - user_settings
+    - transactions
+    - messages
+    - notifications
+
+5.2 Financial Tables
+    - wallets
+    - deposits
+    - withdrawals
+    - investments
+    - referral_earnings
+
+5.3 System Tables
+    - settings
+    - logs
+    - email_templates
+    - backup_history
+
+6. SECURITY IMPLEMENTATION
+-------------------------
+6.1 Authentication Security
+    - Password hashing
+    - Session management
+    - CSRF protection
+    - Rate limiting
+
+6.2 Data Security
+    - Input sanitization
+    - SQL injection prevention
+    - XSS protection
+    - File upload security
+
+6.3 Access Control
+    - Role-based permissions
+    - IP restrictions
+    - Activity logging
+    - Security monitoring
+
+7. API INTEGRATION
+-----------------
+7.1 Payment Gateways
+    - Deposit processing
+    - Withdrawal handling
+    - Transaction verification
+    - Payment status updates
+
+7.2 External Services
+    - Email service
+    - SMS notifications
+    - Currency conversion
+    - Market data feeds
+
+8. MONITORING AND MAINTENANCE
+---------------------------
+8.1 System Monitoring
+    - Error logging
+    - Performance tracking
+    - User activity monitoring
+    - Security alerts
+
+8.2 Maintenance Tasks
+    - Database optimization
+    - Cache management
+    - Backup procedures
+    - System updates
+
+9. USER WORKFLOW
+---------------
+1. Registration
+   - User fills registration form
+   - Email verification
+   - Profile completion
+   - Initial setup
+
+2. Account Management
+   - Profile updates
+   - Security settings
+   - Notification preferences
+   - Account verification
+
+3. Financial Operations
+   - Deposit funds
+   - Make investments
+   - Request withdrawals
+   - Track earnings
+
+4. Support Interaction
+   - Create support tickets
+   - Message support team
+   - View ticket history
+   - Receive notifications
+
+10. ADMIN WORKFLOW
+-----------------
+1. Daily Operations
+   - Monitor system status
+   - Review user activities
+   - Process withdrawals
+   - Handle support tickets
+
+2. User Management
+   - Review new registrations
+   - Manage user accounts
+   - Handle user reports
+   - Process account requests
+
+3. Financial Management
+   - Verify transactions
+   - Process withdrawals
+   - Generate reports
+   - Monitor investments
+
+4. System Maintenance
+   - Monitor system health
+   - Perform backups
+   - Update system settings
+   - Handle technical issues
+
+11. TECHNICAL SPECIFICATIONS
+--------------------------
+11.1 Frontend
+    - HTML5
+    - CSS3
+    - JavaScript
+    - Bootstrap 5
+    - jQuery
+
+11.2 Backend
+    - PHP 7.4+
+    - MySQL 5.7+
+    - Apache/Nginx
+    - RESTful APIs
+
+11.3 Security
+    - SSL/TLS encryption
+    - Password hashing (bcrypt)
+    - Session management
+    - Input validation
+
+12. PERFORMANCE OPTIMIZATION
+--------------------------
+12.1 Frontend
+    - Asset minification
+    - Image optimization
+    - Caching strategies
+    - Lazy loading
+
+12.2 Backend
+    - Query optimization
+    - Caching implementation
+    - Load balancing
+    - Resource management
+
+13. FUTURE ENHANCEMENTS
+---------------------
+13.1 Planned Features
+    - Mobile application
+    - Advanced analytics
+    - API marketplace
+    - Multi-language support
+
+13.2 System Improvements
+    - Performance optimization
+    - Security enhancements
+    - UI/UX improvements
+    - Integration capabilities
+
+14. FILE-BY-FILE BREAKDOWN
+-------------------------
+14.1 Frontend Files
+    /public_html/
+    ├── index.html
+    │   - Main landing page
+    │   - Features showcase
+    │   - Registration/login links
+    │   - Platform overview
+    │
+    ├── about.html
+    │   - Company information
+    │   - Team details
+    │   - Mission and vision
+    │   - Platform benefits
+    │
+    ├── contact.html
+    │   - Contact form
+    │   - Support information
+    │   - FAQ section
+    │   - Social media links
+    │
+    ├── services.html
+    │   - Investment packages
+    │   - Service details
+    │   - Pricing information
+    │   - Feature comparison
+    │
+    ├── packages.html
+    │   - Investment plans
+    │   - ROI details
+    │   - Terms and conditions
+    │   - Subscription options
+    │
+    ├── css/
+    │   ├── style.css
+    │   │   - Main stylesheet
+    │   │   - Global styles
+    │   │   - Layout definitions
+    │   │
+    │   ├── dashboard.css
+    │   │   - Dashboard-specific styles
+    │   │   - Admin/user interface styles
+    │   │
+    │   └── responsive.css
+    │       - Mobile-friendly styles
+    │       - Media queries
+    │
+    ├── js/
+    │   ├── main.js
+    │   │   - Core functionality
+    │   │   - Event handlers
+    │   │   - UI interactions
+    │   │
+    │   ├── dashboard.js
+    │   │   - Dashboard functionality
+    │   │   - Data visualization
+    │   │   - Real-time updates
+    │   │
+    │   └── validation.js
+    │       - Form validation
+    │       - Input checking
+    │       - Error handling
+    │
+    └── images/
+        - Platform images
+        - User avatars
+        - Icons and logos
+        - Marketing materials
+
+14.2 Backend Files
+    /backend/
+    ├── config/
+    │   └── database.php
+    │       - Database connection settings
+    │       - Connection pool management
+    │       - Error handling
+    │       - Query logging
+    │
+    ├── controllers/
+    │   ├── AuthController.php
+    │   │   - User authentication
+    │   │   - Session management
+    │   │   - Password handling
+    │   │   - Role verification
+    │   │
+    │   ├── ContactController.php
+    │   │   - Message handling
+    │   │   - Support ticket management
+    │   │   - Email notifications
+    │   │   - Message status tracking
+    │   │
+    │   ├── UserController.php
+    │   │   - User profile management
+    │   │   - Account settings
+    │   │   - User preferences
+    │   │   - Profile updates
+    │   │
+    │   ├── WalletController.php
+    │   │   - Balance management
+    │   │   - Transaction processing
+    │   │   - Payment verification
+    │   │   - Financial operations
+    │   │
+    │   └── AdminController.php
+    │       - Admin operations
+    │       - System management
+    │       - User management
+    │       - Financial oversight
+    │
+    ├── views/
+    │   ├── admin/
+    │   │   ├── dashboard.php
+    │   │   │   - Admin overview
+    │   │   │   - System statistics
+    │   │   │   - Recent activities
+    │   │   │   - Quick actions
+    │   │   │
+    │   │   ├── users.php
+    │   │   │   - User listing
+    │   │   │   - User management
+    │   │   │   - Role assignment
+    │   │   │   - Account control
+    │   │   │
+    │   │   └── messages.php
+    │   │       - Message management
+    │   │       - Support ticket handling
+    │   │       - Response system
+    │   │       - Message tracking
+    │   │
+    │   └── user/
+    │       ├── dashboard.php
+    │       │   - User overview
+    │       │   - Account summary
+    │       │   - Recent activities
+    │       │   - Quick actions
+    │       │
+    │       ├── profile.php
+    │       │   - Profile management
+    │       │   - Personal information
+    │       │   - Security settings
+    │       │   - Preferences
+    │       │
+    │       └── wallet.php
+    │           - Balance display
+    │           - Transaction history
+    │           - Payment options
+    │           - Financial reports
+    │
+    └── assets/
+        ├── css/
+        │   - Admin-specific styles
+        │   - Dashboard layouts
+        │   - Custom components
+        │
+        └── js/
+            - Admin functionality
+            - Data processing
+            - Real-time updates
+            - Interactive features
+
+14.3 Database Files
+    /backend/
+    ├── db_init.php
+    │   - Database initialization
+    │   - Table creation
+    │   - Default data setup
+    │   - Schema management
+    │
+    ├── add_my_referral_column.sql
+    │   - Referral system setup
+    │   - Column addition
+    │   - Data migration
+    │
+    ├── fix_users_table.sql
+    │   - Table structure fixes
+    │   - Data integrity
+    │   - Schema updates
+    │
+    └── add_referral_column.sql
+        - Referral tracking
+        - Column management
+        - Data structure
+
+14.4 Configuration Files
+    /public_html/
+    ├── .htaccess
+    │   - URL rewriting
+    │   - Security rules
+    │   - Access control
+    │   - Error handling
+    │
+    ├── package.json
+    │   - Dependencies
+    │   - Scripts
+    │   - Project metadata
+    │   - Build configuration
+    │
+    └── constants.php
+        - System constants
+        - Configuration values
+        - Environment settings
+        - Global variables
+
+14.5 Utility Files
+    /public_html/
+    ├── connect.php
+    │   - Database connection
+    │   - Connection pooling
+    │   - Error handling
+    │   - Query logging
+    │
+    ├── debug.php
+    │   - Debugging tools
+    │   - Error reporting
+    │   - Log management
+    │   - Development aids
+    │
+    └── error_log
+        - Error tracking
+        - System logs
+        - Debug information
+        - Performance metrics 
